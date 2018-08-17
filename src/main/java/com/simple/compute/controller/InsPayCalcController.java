@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.runner.Request;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,31 +22,11 @@ public class InsPayCalcController {
 	
 	@ResponseBody
 	@RequestMapping(value="/calcResult.do",method=RequestMethod.POST,produces="text/json; charset=UTF-8")
-	public String calcResult(
-			@RequestParam String bj,
-			@RequestParam String bjCode,
-			@RequestParam String u0,
-			@RequestParam String insSsn,
-			@RequestParam String insSex,
-			@RequestParam String insAge,
-			@RequestParam String insManAge,
-			@RequestParam String napgiCode,
-			@RequestParam String bogiCode,
-			@RequestParam String healthYn,
-			@RequestParam String step,
-			@RequestParam String napgi,
-			@RequestParam String insuCode,
-			@RequestParam String sskey,
-			@RequestParam String sendUrlChk,
-			@RequestParam String jumpStep,
-			@RequestParam String applyType
-			) throws Exception {
+	public String calcResult(@RequestBody String paramData) throws Exception {
 		
-	    String params = "bj="+bj+"&bjCode="+bjCode+"&u0="+u0+"&insSsn="+insSsn+"&insSex="+
-						insSex+"&insAge="+insAge+"&insManAge="+insManAge+"&napgiCode="+napgiCode+"&bogiCode="+bogiCode+
-						"&healthYn="+healthYn+"&step="+step+"&napgi="+napgi+"&insuCode="+insuCode+"&sskey="+
-						sskey+"&sendUrlChk="+sendUrlChk+"&jumpStep="+jumpStep+"&applyType="+applyType;
-	    
+		//ajax 에서 폼에 담긴 정보를 serialize해서 가져올 때 그 정보를 파라미터별로 따로 받지 않고 한번에 받아서 string객체에 저장할 수 있게 한다.
+		System.out.println(paramData);
+		
 		URL url = new URL("https://www.onsure.co.kr/m/contract/getSavingsInfo.do");
 		
 		HttpsURLConnection sconn = (HttpsURLConnection)url.openConnection();
@@ -58,7 +39,7 @@ public class InsPayCalcController {
 		sconn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		
 		OutputStream os = sconn.getOutputStream();
-		os.write(params.getBytes("UTF-8"));
+		os.write(paramData.getBytes("UTF-8"));
 		os.flush();
 		os.close();
 
@@ -82,31 +63,8 @@ public class InsPayCalcController {
 	
 	@ResponseBody
 	@RequestMapping(value="/calcResultDetail.do",method=RequestMethod.POST,produces="text/json; charset=UTF-8")
-	public String calcResultDetail(
-			@RequestParam String bj,
-			@RequestParam String bjCode,
-			@RequestParam String u0,
-			@RequestParam String insSsn,
-			@RequestParam String insSex,
-			@RequestParam String insAge,
-			@RequestParam String insManAge,
-			@RequestParam String napgiCode,
-			@RequestParam String bogiCode,
-			@RequestParam String healthYn,
-			@RequestParam String step,
-			@RequestParam String napgi,
-			@RequestParam String insuCode,
-			@RequestParam String sskey,
-			@RequestParam String sendUrlChk,
-			@RequestParam String jumpStep,
-			@RequestParam String applyType
-			) throws Exception {
+	public String calcResultDetail(@RequestBody String paramData) throws Exception {
 		
-	    String params = "bj="+bj+"&bjCode="+bjCode+"&u0="+u0+"&insSsn="+insSsn+"&insSex="+
-						insSex+"&insAge="+insAge+"&insManAge="+insManAge+"&napgiCode="+napgiCode+"&bogiCode="+bogiCode+
-						"&healthYn="+healthYn+"&step="+step+"&napgi="+napgi+"&insuCode="+insuCode+"&sskey="+
-						sskey+"&sendUrlChk="+sendUrlChk+"&jumpStep="+jumpStep+"&applyType="+applyType;
-	    
 		URL url = new URL("https://www.onsure.co.kr/contract/getSavingsGridData.do");
 		
 		HttpsURLConnection sconn = (HttpsURLConnection)url.openConnection();
@@ -119,7 +77,7 @@ public class InsPayCalcController {
 		sconn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		
 		OutputStream os = sconn.getOutputStream();
-		os.write(params.getBytes("UTF-8"));
+		os.write(paramData.getBytes("UTF-8"));
 		os.flush();
 		os.close();
 

@@ -63,7 +63,6 @@
 	function fn_submit(){
 		
 		var params = $("#mainForm").serialize();
-		console.log(params);
 		var temp = "";
 		
 		$.ajax({
@@ -87,6 +86,7 @@
 				console.log("에러 : " + error + "상태 : "+ status);
 			}
 		});
+		
 	};
 	
 	//mainform value set
@@ -298,24 +298,7 @@
 			
 		}
 			
-		if(type == 'dummy3'){  // 4텝 상세페이지
-			//기준 : 남자, 40세, 10년만기, 3년납, 월납, 보험료 10만원
-			
-			//데이터를 정제하여 폼에 넣는다.
-			//$('#mainForm>input[name="bjCode"]').val($('input:radio[name="insType"]:checked').val());
-			$('#mainForm>input[name="insSsn"]').val(tmpSsn);
-			$('#mainForm>input[name="insSex"]').val(1);
-			$('#mainForm>input[name="insAge"]').val(getInsAge(tmpSsn));
-			$('#mainForm>input[name="insManAge"]').val(getManAge(tmpSsn));
-			$('#mainForm>input[name="u0"]').val(20);
-			$('#mainForm>input[name="bogiCode"]').val('N10');
-			$('#mainForm>input[name="napgiCode"]').val('3');
-			$('#mainForm>input[name="healthYn"]').val('N');
-			$('#mainForm>input[name="step"]').val(step);
-			
-			num = '03';
-		}
-		else if(type == 'my'){  // 자신이 직접 입력한 데이터로 해지 환급금을 조회한다.
+		if(type == 'my'){  // 자신이 직접 입력한 데이터로 해지 환급금을 조회한다.
 			
 			//데이터를 정제하여 폼에 넣는다.
 			//$('#mainForm>input[name="bjCode"]').val($('input:radio[name="insType"]:checked').val());
@@ -327,19 +310,6 @@
 			$('#mainForm>input[name="bogiCode"]').val($('input:radio[name="bogi"]:checked').val());
 			$('#mainForm>input[name="napgiCode"]').val($('input:radio[name="payment"]:checked').val());
 			$('#mainForm>input[name="healthYn"]').val('Y');
-			$('#mainForm>input[name="step"]').val(step);
-			
-			num = '01';
-		}else if(type == 'pension'){  // 4텝 상품 상세내용 데이터 연동
-			// 여자 40세 10년만기 3년납 월납 보험료 20만원
-			$('#mainForm>input[name="insSsn"]').val(tmpSsn);
-			$('#mainForm>input[name="insSex"]').val(2); 
-			$('#mainForm>input[name="insAge"]').val(getInsAge(tmpSsn));
-			$('#mainForm>input[name="insManAge"]').val(getManAge(tmpSsn));
-			$('#mainForm>input[name="u0"]').val(20);
-			$('#mainForm>input[name="bogiCode"]').val('N10');
-			$('#mainForm>input[name="napgiCode"]').val('3');
-			$('#mainForm>input[name="healthYn"]').val('N');
 			$('#mainForm>input[name="step"]').val(step);
 			
 			num = '01';
@@ -534,7 +504,7 @@
 </head>
 <body>
 	<fieldset>
-		<legend>저축보험</legend>
+		<legend style="font-size:2em"><strong>저축보험</strong></legend>
 		<ul id="info">
 			<li>생년월일 : <input type="tel" id="birthday" name="birthday"
 				maxlength="6" placeholder="생년월일(예:880704)"></li>
