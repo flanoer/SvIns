@@ -90,7 +90,6 @@ public class InsPayCalcController {
 	    JSONObject obj = null;
 	    
 	    while((bf = br.readLine()) != null) {
-	    	System.out.println(bf);
 	    	obj = (JSONObject)jp.parse(bf);
 	    }
 		
