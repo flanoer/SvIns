@@ -107,6 +107,16 @@ function savingsValidate(jumin){
 	}
 };
 
+// 정기보험 가입나이 체크			
+function termValidate(jumin){
+	if(getManAge(jumin) < 19 || getInsAge(jumin) > 70) {
+		alert('만 19세 ~ 70세까지 가입할 수 있습니다');
+		$('[name="birthday"]').val('');		
+		$('[name="birthday"]').focus();
+		return false;
+	}
+}
+
 function replaceNumType(str){
 	
 	var returnVal = 0;

@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>온슈어 저축보험 계산기</title>
 <script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/resources/js/common.js"></script>
 
@@ -175,15 +175,6 @@
 		//var napgi = data.napgi; //납입기간
 		//var gurtPaymTerm = data.gurtPaymTerm //연금지급기간
 				
-		//graphInit(); //초기화가 필요없어 주석
-		var graphType = 'E1'; //저축은 하나라 직접 설정
-		
-		/*graph 화면 set*/
-		//$('#resNapgiStart'+graphType).text(napgiStart);
-		$('#resNapgiEnd'+graphType).text(replaceNumType(napgiEnd));
-		//$('#resBogiStart'+graphType).text(bogiStart);
-		$('#resBogiEnd'+graphType).text(replaceNumType(bogiEnd));	
-				
 		/*납입보험료 & 예상수령액 셋팅*/		
 		var rtnPrice3 = data.rtn_price3; //예상수령액(현공시이율)	
 		var stdMinYonRate = data.std_min_yon_rate; //현공시이율		
@@ -215,52 +206,6 @@
 		var detail = data.F;						//해지환급금 예시내용
 		var jsonPrsTblBody = JSON.parse(detail);	//해지환금금 json
 		
-		//해지환급금 예시안내
-		if(detail && detail.length>0){
-			
-			var apHtml = "";
-			
-			$(jsonPrsTblBody.F_cnctRcstList).each(function(idx){
-				apHtml += '<tr>\n';
-				apHtml += '<th scope="row">'+this.cnctEltrMnth+'</th>\n';
-				apHtml += '<td class="price">'+this.paymPrem+'</td>\n';
-				apHtml += '<td class="price">'+this.mainCnctRcst0+'</td>\n';
-				apHtml += '<td class="price">'+this.mainRfndRato0+'</td>\n';
-				apHtml += '</tr>\n';
-			});			
-			
-			var infoHtml = '';
-			var subCnt = 0;
-			var fDown = jsonPrsTblBody.F_cnctRcstDown;
-			var fDownSize = fDown.length;
-			
-			for (var i = 0 ; i < fDownSize; i++) {
-				var _this = fDown[i];
-				var _next = fDown[(i+1)];
-				var isThisSub = (_this.explPrgp.substr(0, 1) == '-' && _this.listMark == '') ? true : false;
-				var isNextSub = (_next != null && (_next.explPrgp.substr(0, 1) == '-' && _next.listMark == '')) ? true : false;
-				
-				if (isThisSub) {
-					infoHtml += '<li>'+_this.explPrgp.replace(/&nbsp;/gm, '') + '</li>\n';
-					
-					if (!isNextSub) {
-						infoHtml += '</ul>\n</li>\n';
-					}
-					
-				} else {
-
-					infoHtml += '<li>';
-					infoHtml += _this.listMark +' '+ _this.explPrgp.replace(/&nbsp;/gm, '');
-					if (!isNextSub) {
-						infoHtml += '</li>\n';
-					} else {
-						infoHtml += '\n<ul>\n';
-					}
-				}
-			}				
-			
-			$('#resRefundInfo2').html(infoHtml);		//해지환급금 예시 안내문
-		}
 	}
 	
 	function recalc(){
@@ -357,7 +302,9 @@
 		var stdMinYonRate = ''	
 		
 		var detail = data.F;				//해지환급금 예시내용
+		var guidance = data.K;
 		var jsonPrsTblBody = JSON.parse(detail);	//해지환급금 Json
+		var jsonGuide = JSON.parse(guidance);
 		
 		//추후 dummy데이터 때문에 분기부분 남겨 놓음
 		if(type == 'my'){
@@ -393,20 +340,20 @@
 				
 				//수수료 관련 변수들
 				//보험관련비용(계약체결비용)
-				var standardCost1 = napgi+'미만 : 경과이자의 5%(최대'+commaNum(conclusionCost1)+'원)';			
+				//var standardCost1 = napgi+'미만 : 경과이자의 5%(최대'+commaNum(conclusionCost1)+'원)';			
 				//보험관련비용(계약관리비용)
-				var standardCost2 = napgi+'미만 : 경과이자의 15%(최대'+commaNum(manageCost1)+'원)';
-				var standardCost3 = napgi+'이상 : 보험료의 '+manageCost3+'%('+commaNum(manageCost2)+'원)';
+				//var standardCost2 = napgi+'미만 : 경과이자의 15%(최대'+commaNum(manageCost1)+'원)';
+				//var standardCost3 = napgi+'이상 : 보험료의 '+manageCost3+'%('+commaNum(manageCost2)+'원)';
 				//보험관련비용(위험비용)
-				var standardCost4 = '보험료의 '+dangerCost1+'% - '+dangerCost2+'% ('+commaNum(dangerCost3)+'원 ~ '+commaNum(dangerCost4)+'원)';
+				//var standardCost4 = '보험료의 '+dangerCost1+'% - '+dangerCost2+'% ('+commaNum(dangerCost3)+'원 ~ '+commaNum(dangerCost4)+'원)';
 				
 						
 				/*수수료(기본 비용 및 수수료) 화면*/		
-				$('#resStandard1, #resStandard2').text(standard);
-				$('#resStandardCost1').text(standardCost1);
-				$('#resStandardCost2').text(standardCost2);
-				$('#resStandardCost3').text(standardCost3);
-				$('#resStandardCost4').text(standardCost4);
+				//$('#resStandard1, #resStandard2').text(standard);
+				//$('#resStandardCost1').text(standardCost1);
+				//$('#resStandardCost2').text(standardCost2);
+				//$('#resStandardCost3').text(standardCost3);
+				//$('#resStandardCost4').text(standardCost4);
 				
 				/*해지 환급금 화면 set*/	
 				//연금액, 환급금 테이블 표 표준이율, 현재 공시이률 셋
@@ -422,9 +369,9 @@
 			/*해지환급금 예시표*/		
 			if(jsonPrsTblBody.F_cnctRcstList.length > 0){
 				//body 영역 초기화
+				$('#resRefundAmount0').empty();
 				$('#resRefundAmount1').empty();
 				$('#resRefundAmount2').empty();
-				$('#resRefundAmount3').empty();
 				
 				for(var i=0; i<jsonPrsTblBody.F_cnctRcstList.length; i++){
 				
@@ -465,6 +412,15 @@
 								
 				}
 			}
+			
+			if(jsonGuide != null){
+				console.log('널이 아니당');
+				var guideHtml = '';
+				$('#guide_fee').html(guideHtml);
+				
+				
+				
+			}
 		}
 		
 		//해지환급금 예시안내
@@ -492,7 +448,7 @@
 					if (!isNextSub) {
 						infoHtml += '</li>\n';
 					} else {
-						infoHtml += '\n<ul>\n';
+						infoHtml += '\n<ul style="list-style-type: none;">\n';
 					}
 				}
 			}
@@ -505,7 +461,7 @@
 <body>
 	<fieldset>
 		<legend style="font-size:2em"><strong>저축보험</strong></legend>
-		<ul id="info">
+		<ul id="info" style="list-style-type: none;">
 			<li>생년월일 : <input type="tel" id="birthday" name="birthday"
 				maxlength="6" placeholder="생년월일(예:880704)"></li>
 			<li>성&nbsp;&nbsp;&nbsp;&nbsp;별 : <label>남성 <input
@@ -649,7 +605,7 @@
 			</tbody>
 		</table>
 		
-		<ul id="resRefundInfo">
+		<ul id="resRefundInfo" style="list-style-type: none;">
 		</ul>
 	</fieldset>
 	<fieldset id="refund2" style="display: none">
@@ -671,7 +627,7 @@
 						<th scope="col" style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">비용</th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody id="guide_fee">
 					<tr>
 						<th scope="row" rowspan="3" style="padding: 10px; border: 1px solid #ddd;">보험 관계 비용</th>
 						<td style="padding: 10px; border: 1px solid #ddd;">계약 체결 비용</td>
