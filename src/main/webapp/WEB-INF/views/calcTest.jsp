@@ -10,6 +10,25 @@
 <script src="${pageContext.request.contextPath}/resources/js/common.js"></script>
 
 <script type="text/javascript">
+	//인기조건 샘플 데이터
+	var g_faveData = {
+		'2030' : {
+			'payment'   : '3',   // 납입기간   2 : 2년납, 3 : 3년납, 0 : 일시납
+			'monthbill' : '20',  // 월 보험료  u0 = 10 : 10만원, 20 : 20만원,  30 : 30만원
+			'bogi'      : 'N10'  // 보험기간   N10 = 10 으로 고정 10년
+		},
+		'3080' : {
+			'payment'   : '3',   // 납입기간   2 : 2년납, 3 : 3년납, 0 : 일시납
+			'monthbill' : '30',  // 월 보험료  u0 = 10 : 10만원, 20 : 20만원,  30 : 30만원
+			'bogi'      : 'N10'  // 보험기간   N10 = 10 으로 고정 10년
+		},
+		'default' : {
+			'payment'   : '3',   // 납입기간   2 : 2년납, 3 : 3년납, 0 : 일시납
+			'monthbill' : '20',  // 월 보험료  u0 = 10 : 10만원, 20 : 20만원,  30 : 30만원
+			'bogi'      : 'N10'  // 보험기간   N10 = 10 으로 고정 10년
+		}
+	};
+
 	$(function(){
 		$("input:radio[name='monthbill']").on("click",function(){
 			if($(this).val() == '-1'){
@@ -20,6 +39,169 @@
 			}
 		});
 	});
+	
+	//인기조건 설계하기
+	$(document).ready(function(){
+		$('#pro_check01').on("click",function(){
+		if(vali_proCheck() == false) {
+			return false;
+		} else {
+			if($(this).is(':checked')) {
+				setFaveData();				
+			}
+			else {
+				$("#compute_start").fadeOut();
+				$("#pro_checked").fadeOut();
+			    clearSavingsData();
+			}			
+		}
+		});
+	});
+	
+	function vali_proCheck(){
+		if($('[name="birthday"]').val() == ''){
+			alert("생년월일을 입력해주세요.");
+			$('[name="birthday"]').focus();
+			return false;
+		}
+		
+		if(/^\d{6}$/.test($('[name="birthday"]').val()) == false) {
+			alert('생년월일은 YYMMDD의 6자리로 입력하여 주십시오.');
+			$('[name="birthday"]').focus();
+			return false;
+		}
+		if($('input:radio[name="gender02"]:checked').val() == undefined) {
+			alert('성별을 입력해 주세요.');
+			$('input:radio[name="gender02"]').eq(0).focus();			
+			return false;
+		}
+		
+	};
+	//사용자 나이를 반영 디폴트 조건 선정
+	function setFaveData() {
+		var birthday=$('[name="birthday"]').val();
+			
+		if(birthday){
+			var age = getInsAge(birthday);	
+						
+			if(age >= 20 && age < 30) {
+				setSavingsData(birthday, g_faveData['2030']);
+			}else if(age >= 30 && age < 81) {
+				setSavingsData(birthday, g_faveData['3080']);
+			}else {
+				setSavingsData(birthday, g_faveData['default']);
+			} 
+		}
+	}
+	
+	//저축 관련 항목 set
+	function setSavingsData(birthday, obj){
+		
+		var payment = obj.payment;
+		var monthbill = obj.monthbill;
+		var bogi = obj.bogi;
+								
+		//납입기간 설정
+		if(setPayment(payment) != "ok"){			
+			setDefaultData();
+			return false;
+		}
+		
+		//월보험료 설정		
+		if(setMonthBill(monthbill) != "ok"){
+			setDefaultData();
+			return false;
+		}
+		
+	}
+	
+	//납입기간 설정
+	function setPayment(payment){
+		
+		$('input:radio[name="payment"]').each(function(){
+			$(this).prop('checked', false);		
+		});
+		
+		switch(payment){
+			case '2':
+				$('#pay_2').prop('checked',true);
+				return "ok";
+				break;
+			case '3':
+				$('#pay_3').prop('checked',true);
+				return "ok";
+				break;
+			case '5':
+				$('#pay_5').prop('checked',true);
+				return "ok";
+				break;
+			case '7':
+				$('#pay_7').prop('checked',true);
+				return "ok";
+				break;
+			default:
+				$('#pay_10').prop('checked',true);
+				return "ok";
+				break;
+		}
+	}
+	
+	//월보험료 설정
+	function setMonthBill(bill){
+		$('input:radio[name="monthbill"]').each(function(){
+			$(this).prop('checked', false);
+		});
+		
+		$('#monthbillTxt').val('');
+		$('#monthbill_custom').hide();	
+				
+		switch(bill){				
+			case '10':
+				$('#monthbill_10').prop('checked', true);
+				return "ok";
+				break;
+			case '20':
+				$('#monthbill_20').prop('checked', true);
+				return "ok";
+				break;
+			case '30':
+				$('#monthbill_30').prop('checked', true);
+				return "ok";
+				break;
+			default:
+				$('#monthbill_-1').prop('checked', true);
+				$('#monthbill_custom').show();
+				$('#monthbillTxt').val(val);
+				return "ok";
+				break;								
+		}							
+	}
+	
+	function setDefaultData(){
+		alert('인기조건이 없으니, 세부 항목을 선택하신 후 설계하시기 바랍니다.');
+		clearSavingsData();
+	}
+
+	//게산기 초기화
+	function clearSavingsData(){
+		
+		//납입기간 초기화		
+		$('input:radio[name="payment"]').each(function(){
+			$(this).prop('checked',false);
+		});
+		
+		//월보험료 초기화	
+		$('input:radio[name="monthbill"]').each(function(){
+			$(this).prop('checked',false);
+		});
+		
+		$('#monthbillTxt').val('');
+		$('#monthbillTxt').hide();
+			
+		$('#mainForm>[name="sskey"]').val("");
+		$("#jumpStep").val("");
+			
+	}	
 	
 	function vali_form(){
 		if($('[name="birthday"]').val() == ''){
@@ -167,20 +349,11 @@
 		/*에상 연금액*/
 		var bogiStart = data.bogi_start; //예상연금액 start
 		var bogiEnd = data.bogi_end; //예상연금액 end	
-		
-		/*그래프 setting*/
-		//var bogiName = data.bogiName; //연금형태	
-		//var yonAge = data.pr_7 //연금개시 연령		
-		//var insAge = data.pr_6 //가입연령
-		//var napgi = data.napgi; //납입기간
-		//var gurtPaymTerm = data.gurtPaymTerm //연금지급기간
 				
 		/*납입보험료 & 예상수령액 셋팅*/		
 		var rtnPrice3 = data.rtn_price3; //예상수령액(현공시이율)	
 		var stdMinYonRate = data.std_min_yon_rate; //현공시이율		
 		var refundRate = splData[108]; //환급율
-		console.log("환급율 : "+refundRate);
-		console.log("결과값 : "+splData);
 		
 		/*상세연금액*/
 		var rtnPrice1 = data.rtn_price1; //예상수령액(최저보증이율)	
@@ -201,7 +374,6 @@
 		//연금액 안내
 		$('#resExamYear').text(new Date().getFullYear()); // 올해
 		$('#resExamMonth').text(new Date().getMonth() + 1); // 이번달	
-		
 		
 		var detail = data.F;						//해지환급금 예시내용
 		var jsonPrsTblBody = JSON.parse(detail);	//해지환금금 json
@@ -273,9 +445,6 @@
 			success: function(response) {				
 				if(response.serverSideSuccessYn == 'Y') {					
 					if(parseInt(step) == 1) {
-						console.log("해지환급금 관련정보 \r\n jsonData : "+response.result.jsonData+
-									"\r\n num : "+num+
-									"\r\n type : "+type);
 						//해지환급금
 						displayTerminateData(response.result.jsonData, num, type);
 					}
@@ -316,45 +485,6 @@
 				stdMinYonRate = data.std_min_yon_rate; //현공시이율	->	연복리 B
 				avgStdRate = data.avg_std_rate; //평균공시이율
 						
-				/*해지 환급금 관련 절정*/	
-				//기준 공통(예시표, 수수료)
-				var insSex = data.pr_1; //성별
-				var insAge = data.pr_2 //시작나이
-				var monthbill = data.u0; //보험료
-				var napgi = data.napgiName; //납입기간
-				//var yonAge = data.pr_7 //연금개시 나이
-				
-				//수수료에 뜨는 부분
-				//(기준 : 남 36세, 10년만기, 3년납, 보험료 300,000원 )
-				var standard = '기준 : '+insSex+'자, '+insAge+'세, 10년만기, '+napgi+'납, 보험료 '+commaNum(Number(monthbill)*10000)+'원';
-						
-				/*수수료(기본 비용 및 수수료) set*/
-				var conclusionCost1 = data.pr_135; //체결비용			
-				var manageCost1 = data.pr_136; //관리비용			
-				var manageCost2 = data.pr_137; //관리비용
-				var manageCost3 = data.pr_142; //관리비용
-				var dangerCost1 = data.pr_147; //위험비용
-				var dangerCost2 = data.pr_148; //위험비용
-				var dangerCost3 = data.pr_145; //위험비용
-				var dangerCost4 = data.pr_146; //위험비용
-				
-				//수수료 관련 변수들
-				//보험관련비용(계약체결비용)
-				//var standardCost1 = napgi+'미만 : 경과이자의 5%(최대'+commaNum(conclusionCost1)+'원)';			
-				//보험관련비용(계약관리비용)
-				//var standardCost2 = napgi+'미만 : 경과이자의 15%(최대'+commaNum(manageCost1)+'원)';
-				//var standardCost3 = napgi+'이상 : 보험료의 '+manageCost3+'%('+commaNum(manageCost2)+'원)';
-				//보험관련비용(위험비용)
-				//var standardCost4 = '보험료의 '+dangerCost1+'% - '+dangerCost2+'% ('+commaNum(dangerCost3)+'원 ~ '+commaNum(dangerCost4)+'원)';
-				
-						
-				/*수수료(기본 비용 및 수수료) 화면*/		
-				//$('#resStandard1, #resStandard2').text(standard);
-				//$('#resStandardCost1').text(standardCost1);
-				//$('#resStandardCost2').text(standardCost2);
-				//$('#resStandardCost3').text(standardCost3);
-				//$('#resStandardCost4').text(standardCost4);
-				
 				/*해지 환급금 화면 set*/	
 				//연금액, 환급금 테이블 표 표준이율, 현재 공시이률 셋
 				$('#resStdMinYonRate2, #resStdMinYonRate3, #resStdMinYonRate4, #resStdMinYonRate5, #resStdMinYonRate6').text(stdMinYonRate);
@@ -414,10 +544,141 @@
 			}
 			
 			if(jsonGuide != null){
-				console.log('널이 아니당');
+				var standard = jsonGuide.K_guide_fee_dec[0].str;
+				var guideFee = jsonGuide.K_guide_fee;
+				var rowspan = 0;
+				standard = standard.substring(1,standard.length-1);
+
+				$('#resStandard').text(standard);
+				
 				var guideHtml = '';
 				$('#guide_fee').html(guideHtml);
-				
+
+				if(guideFee.length > 0){
+					var tr, td;
+					var rowspan = 1;
+					var temp;
+					var prev = [], curr = [];
+					//헤더가 되는 칼럼의 키값을 정렬하기 위해 키값을 가져오고 정렬 후 객체에 담음
+					var key = Object.keys(guideFee[0]).sort();
+					
+					//기준이 되는 첫번째 칼럼 데이터 붙이기
+					tr = document.createElement("tr");
+					for(var h = 0 ; h < key.length ; h++){
+						//구분
+						if(h == 0){
+							td = document.createElement("th");
+							td.appendChild(document.createTextNode(guideFee[0][key[h]]));
+							td.setAttribute("scope","row");
+							td.style = "padding: 10px; border: 1px solid #ddd;";
+							prev[h] = td;
+							tr.appendChild(td);
+						}
+						//그 외 상세내용
+						else{
+							td = document.createElement("td");
+							td.appendChild(document.createTextNode(guideFee[0][key[h]]));
+							td.setAttribute("scope","row");
+							td.style = "padding: 10px; border: 1px solid #ddd;";
+							prev[h] = td;
+							tr.appendChild(td);
+						}
+					}
+					$('#guide_fee').append(tr);
+					
+					//부장님과 다솜씨가 주신 힌트로 다시 짠 코드
+					for(var i = 1; i < guideFee.length ; i++){
+						tr = document.createElement("tr");
+						curr = [];
+						for(var j = 0; j < key.length ; j++){
+							//칼럼이 구분일 때
+							if(j == 0){
+								td = document.createElement("th");
+								td.innerHTML = guideFee[i][key[j]];
+								td.setAttribute("scope","row");
+								td.style = "padding: 10px; border: 1px solid #ddd;";
+								curr[j] = td;
+								//구분의 내용이 같을 경우 (필요할 경우 다른 칼럼에 쓰면 그대로 적용될 것)
+								if(curr[j].innerHTML == prev[j].innerHTML){
+									rowspan++;
+									prev[j].setAttribute("rowspan",rowspan);
+									curr[j] = prev[j];
+								}
+								//구분의 내용이 다를 경우
+								else{
+									prev[j] = curr[j];
+									tr.appendChild(prev[j]);
+								}
+							}
+							//칼럼이 구분이 아닌 상세 내용일 때
+							else{
+								td = document.createElement("td");
+								td.innerHTML = guideFee[i][key[j]].replace("\n","<br/>");
+								td.setAttribute("scope","row");
+								td.style = "padding: 10px; border: 1px solid #ddd;";
+								curr[j] = td;
+								tr.appendChild(curr[j]);
+							}
+							$('#guide_fee').append(tr);
+						}
+					}
+					/*
+					//내가 짰던 코드					
+					for(var i = 0; i < guideFee.length ; i++){
+						curr = [];
+						for(var h = 0; h < key.length ; h++){
+							curr[h] = guideFee[i][key[h]];
+							console.log(curr[h]);
+							if(i > 0 && h == 0 && a[0][h] == curr[h]){
+								rowspan++;
+								curr[h] = '';
+								a[0]['rowspan'] = rowspan;
+								a[0]['temp'] = h;
+							}
+						}
+						a[i] = curr;
+					}
+					console.log(a);
+					for(var i = 0; i < a.length ; i++){
+						tr = document.createElement("tr");
+						for(var j = 0; j < a[i].length ; j++){
+							console.log("i : "+i+", j : "+j);
+							if(a[i][j] != '' && a[i]['temp'] != null && a[i]['rowspan'] != null){
+								if(j == 0){
+									td = document.createElement("th");
+									td.appendChild(document.createTextNode(a[i][j]));
+									td.setAttribute("rowspan",a[i]['rowspan']);
+									td.setAttribute("scope","row");
+									td.style = "padding: 10px; border: 1px solid #ddd;";
+									tr.appendChild(td);
+								}
+								else{
+									td = document.createElement("td");
+									td.appendChild(document.createTextNode(a[i][j]));
+									td.style = "padding: 10px; border: 1px solid #ddd;";
+									tr.appendChild(td);
+								}
+							}
+							if(a[i][j] != '' && a[i]['temp'] == undefined){
+								if(j == 0){
+									td = document.createElement("th");
+									td.appendChild(document.createTextNode(a[i][j]));
+									td.setAttribute("scope","row");
+									td.style = "padding: 10px; border: 1px solid #ddd;";
+									tr.appendChild(td);
+								}
+								else{
+									td = document.createElement("td");
+									td.appendChild(document.createTextNode(a[i][j]));
+									td.style = "padding: 10px; border: 1px solid #ddd;";
+									tr.appendChild(td);
+								}
+							}
+						}
+						document.getElementById("guide_fee").appendChild(tr);
+					}
+					*/
+				}
 				
 				
 			}
@@ -463,33 +724,34 @@
 		<legend style="font-size:2em"><strong>저축보험</strong></legend>
 		<ul id="info" style="list-style-type: none;">
 			<li>생년월일 : <input type="tel" id="birthday" name="birthday"
-				maxlength="6" placeholder="생년월일(예:880704)"></li>
+				maxlength="6" placeholder="생년월일(예:880704)"/></li>
 			<li>성&nbsp;&nbsp;&nbsp;&nbsp;별 : <label>남성 <input
-					type="radio" id="gen_m" name="gender02" value="1"></label><label>여성
-					<input type="radio" id="gen_f" name="gender02" value="2">
+					type="radio" id="gen_m" name="gender02" value="1"/></label><label>여성
+					<input type="radio" id="gen_f" name="gender02" value="2"/>
 			</label></li>
+			<li><label>추천조건 설계하기 <input type="checkbox" id="pro_check01"/></label>
 			<li>납입기간 : 
-				<label>2년<input type="radio" id="pay_2" name="payment" value="2"></label>
-				<label>3년<input type="radio" id="pay_3" name="payment" value="3"></label>
-				<label>5년<input type="radio" id="pay_5" name="payment" value="5"></label> 
-				<label>7년<input type="radio" id="pay_7" name="payment" value="7"></label> 
-				<label>10년<input type="radio" id="pay_10" name="payment" value="10"></label>
+				<label>2년<input type="radio" id="pay_2" name="payment" value="2"/></label>
+				<label>3년<input type="radio" id="pay_3" name="payment" value="3"/></label>
+				<label>5년<input type="radio" id="pay_5" name="payment" value="5"/></label> 
+				<label>7년<input type="radio" id="pay_7" name="payment" value="7"/></label> 
+				<label>10년<input type="radio" id="pay_10" name="payment" value="10"/></label>
 			</li>
 			<li>월보험료 : 
-			<label>10만원<input type="radio" id="monthbill_10" name="monthbill" value="10"></label>
-			<label>20만원<input type="radio" id="monthbill_20" name="monthbill" value="20"></label> 
-			<label>30만원<input type="radio" id="monthbill_30" name="monthbill" value="30"></label>
-			<label>직접입력<input type="radio" id="monthbill_-1" name="monthbill" value="-1"></label>
+			<label>10만원<input type="radio" id="monthbill_10" name="monthbill" value="10"/></label>
+			<label>20만원<input type="radio" id="monthbill_20" name="monthbill" value="20"/></label> 
+			<label>30만원<input type="radio" id="monthbill_30" name="monthbill" value="30"/></label>
+			<label>직접입력<input type="radio" id="monthbill_-1" name="monthbill" value="-1"/></label>
 			<span id="monthbill_custom" style="display: none"><input
 					type="number" maxlength="4" id="monthbillTxt" name="monthbillTxt"
-					oninput="maxLengthCheck(this)">만원</span>
+					oninput="maxLengthCheck(this)"/>만원</span>
 			</li>
 			<li>보험기간 : <label>10년<input type="radio" name="bogi"
-					id="bogi_N10" value="N10" checked></label></li>
-			<li><input type="button" value="계산 결과" onclick="vali_form()"></li>
-			<li id="resRtnPrice_recalc" style="display: none"><input type="button" value="다시 계산" onclick="recalc()"></li>
+					id="bogi_N10" value="N10" checked/></label></li>
+			<li style="float:left; margin-right:10px"><input type="button" value="계산 결과" onclick="vali_form()"></li>
+			<li id="resRtnPrice_recalc" style="display: none"><input type="button" value="다시 계산" onclick="recalc()"/></li>
 			<li id="resRtnPrice_li" style="display: none"><span id="resRtnPrice"></span>원</li>
-			<li id="btn_refund_li" style="display: none"><input type="button" value="해지환급금 조회" onclick="getCancelData()"></li> 
+			<li id="btn_refund_li" style="display: none"><input type="button" value="해지환급금 조회" onclick="getCancelData()"/></li> 
 		</ul>
 
 		<form id="mainForm" method="post">
@@ -610,7 +872,7 @@
 	</fieldset>
 	<fieldset id="refund2" style="display: none">
 		<legend style="font-size:2em"><strong>수수료</strong></legend>
-			<span id="resStandard2"></span>
+			<span id="resStandard"></span>
 			<h3>기본 비용 및 수수료</h3>
 			<table style="border-collapse: collapse; border-top: 3px solid #168;">
 				<colgroup>

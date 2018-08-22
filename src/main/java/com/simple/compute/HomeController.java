@@ -35,6 +35,7 @@ public class HomeController {
 		
 		return "calcTest";
 //		return "calcTermIns";
+//		return "home";
 	}
 	
 }
