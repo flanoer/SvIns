@@ -6,6 +6,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>온슈어 저축보험 계산기</title>
+<style type="text/css">
+.template
+{
+	display:none;
+}
+</style>
 <script src="https://code.jquery.com/jquery-1.9.1.js"
 		integrity="sha256-e9gNBsAcA0DBuRWbm0oZfbiCyhjLrI6bmqAl5o+ZjUA="
   		crossorigin="anonymous"></script>
@@ -574,10 +580,12 @@
 					var key = Object.keys(jsonTblTitle).sort();
 					
 					//tbody grid data append variables
-					var $0tr = $('#resRefundAmount0 tr:eq(0)');
-					var $1tr = $('#resRefundAmount1 tr:eq(0)');
-					var $2tr = $('#resRefundAmount2 tr:eq(0)');
+					var $0tr = $('#resRefundAmount0 .template');
+					var $1tr = $('#resRefundAmount1 .template');
+					var $2tr = $('#resRefundAmount2 .template');
 					var list_key = Object.keys(jsonPrsTblBody.F_cnctRcstList[0]);
+
+					console.log($0tr);
 					
 					//thead title insert
 					for(var i=0; i < key.length ; i++){
@@ -594,51 +602,21 @@
 						var am1clone = $1tr.clone();
 						var am2clone = $2tr.clone();
 						
+						am0clone.removeClass("template");
+						am1clone.removeClass("template");
+						am2clone.removeClass("template");
+						
 						for(var j=0; j < list_key.length; j++){
 							var role = list_key[j];
+							//키값을 구했기 때문에
+							//굳이 switch-case 문으로 나눌 필요가 없다... 바보..
 							for(var k in key){
-								switch(role){
-									case "cnctEltrMnth":
-										am0clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										am1clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										am2clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										break;
-									case "paymPrem":
-										am0clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										am1clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										am2clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										break;
-									case "mainCnctRcst0":
-										am0clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										break;
-									case "mainCnctRcst1":
-										am1clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										break;
-									case "mainCnctRcst2":
-										am2clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										break;
-									case "mainRfndRato0":
-										am0clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										break;
-									case "mainRfndRato1":
-										am1clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										break;
-									case "mainRfndRato2":
-										am2clone.children('[data-role="'+role+'"]')
-											.text(row[role]);
-										break;
-								}
+								am0clone.children('[data-role="'+role+'"]')
+									.text(row[role]);
+								am1clone.children('[data-role="'+role+'"]')
+									.text(row[role]);
+								am2clone.children('[data-role="'+role+'"]')
+									.text(row[role]);
 							}
 						}
 						
@@ -646,11 +624,6 @@
 						$('#resRefundAmount1').append(am1clone);
 						$('#resRefundAmount2').append(am2clone);
 
-						if(i == 0){
-							$0tr.remove();
-							$1tr.remove();
-							$2tr.remove();
-						}
 					}
 				}
 				else{
@@ -671,12 +644,16 @@
 				$('#guide_fee').html(guideHtml);
 
 				if(guideFee.length > 0){
+					
+					//헤더가 되는 칼럼의 키값을 정렬하기 위해 키값을 가져오고 정렬 후 객체에 담음
+					var key = Object.keys(guideFee[0]).sort();
+					
+					
+					
 					var tr, td;
 					var rowspan = 1;
 					var temp;
 					var prev = [], curr = [];
-					//헤더가 되는 칼럼의 키값을 정렬하기 위해 키값을 가져오고 정렬 후 객체에 담음
-					var key = Object.keys(guideFee[0]).sort();
 					
 					//기준이 되는 첫번째 칼럼 데이터 붙이기
 					tr = document.createElement("tr");
@@ -935,7 +912,7 @@
 				</tr>
 			</thead>
 			<tbody id="resRefundAmount0">
-				<tr>
+				<tr class="template">
 					<th style="padding: 10px; border: 1px solid #ddd;" data-role="cnctEltrMnth"></th>
 					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="paymPrem"></td>
 					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="mainCnctRcst0"></td>
@@ -964,7 +941,7 @@
 				</tr>
 			</thead>
 			<tbody id="resRefundAmount1">
-				<tr>
+				<tr class="template">
 					<th style="padding: 10px; border: 1px solid #ddd;" data-role="cnctEltrMnth"></th>
 					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="paymPrem"></td>
 					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="mainCnctRcst1"></td>
@@ -993,7 +970,7 @@
 				</tr>
 			</thead>
 			<tbody id="resRefundAmount2">
-				<tr>
+				<tr class="template">
 					<th style="padding: 10px; border: 1px solid #ddd;" data-role="cnctEltrMnth"></th>
 					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="paymPrem"></td>
 					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="mainCnctRcst2"></td>
@@ -1025,33 +1002,11 @@
 					</tr>
 				</thead>
 				<tbody id="guide_fee">
-					<tr>
-						<th scope="row" rowspan="3" style="padding: 10px; border: 1px solid #ddd;">보험 관계 비용</th>
-						<td style="padding: 10px; border: 1px solid #ddd;">계약 체결 비용</td>
-						<td style="padding: 10px; border: 1px solid #ddd;">매월</td>
-						<td style="padding: 10px; border: 1px solid #ddd;"><span id="resStandardCost1"></span></td>
-					</tr>
-					<tr>
-						<td style="padding: 10px; border: 1px solid #ddd;">계약 관리비용</td>
-						<td style="padding: 10px; border: 1px solid #ddd;">매월</td>
-						<td style="padding: 10px; border: 1px solid #ddd;">
-							<span id="resStandardCost2"></span>
-							<br/>
-							<span id="resStandardCost3"></span>
-						</td>
-					</tr>
-					<tr>
-						<td style="padding: 10px; border: 1px solid #ddd;">위험보험료</td>
-						<td style="padding: 10px; border: 1px solid #ddd;">매월</td>
-						<td style="padding: 10px; border: 1px solid #ddd;">
-							<span id="resStandardCost4"></span>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row" style="padding: 10px; border: 1px solid #ddd;">해지공제</th>
-						<td style="padding: 10px; border: 1px solid #ddd;">해지에 따른 패널티</td>
-						<td style="padding: 10px; border: 1px solid #ddd;">해지시</td>
-						<td style="padding: 10px; border: 1px solid #ddd;">해당 없음</td>
+					<tr class="template">
+						<th scope="row" style="padding: 10px; border: 1px solid #ddd;"></th>
+						<td style="padding: 10px; border: 1px solid #ddd;"></td>
+						<td style="padding: 10px; border: 1px solid #ddd;"></td>
+						<td style="padding: 10px; border: 1px solid #ddd;"></td>
 					</tr>
 				</tbody>
 			</table>
