@@ -24,8 +24,9 @@ public class InsPayCalcController {
 	@RequestMapping(value="/calcResult.do",method=RequestMethod.POST,produces="text/json; charset=UTF-8")
 	public String calcResult(@RequestBody String paramData) throws Exception {
 		
-		//ajax 에서 폼에 담긴 정보를 serialize해서 가져올 때 그 정보를 파라미터별로 따로 받지 않고 한번에 받아서 string객체에 저장할 수 있게 한다.
-		System.out.println(paramData);
+		//ajax 에서 폼에 담긴 정보를 serialize해서 가져올 때 그 정보를 파라미터별로 따로 받지 않고 
+		//한번에 받아서 string객체에 저장할 수 있게 한다. @RequestBody
+		//System.out.println(paramData);
 		
 		URL url = new URL("https://www.onsure.co.kr/m/contract/getSavingsInfo.do");
 		

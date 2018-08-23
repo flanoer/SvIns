@@ -6,7 +6,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>온슈어 저축보험 계산기</title>
-<script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.9.1.js"
+		integrity="sha256-e9gNBsAcA0DBuRWbm0oZfbiCyhjLrI6bmqAl5o+ZjUA="
+  		crossorigin="anonymous"></script>
 <script src="${pageContext.request.contextPath}/resources/js/common.js"></script>
 
 <script type="text/javascript">
@@ -365,7 +367,8 @@
 		if($('#resRtnPrice').text(commaNum(replaceNumType(rtnPrice3))) != 'undefined'){
 			$("#resRtnPrice_li").show();
 			$("#resRtnPrice_recalc").show();
-			$("#btn_refund_li").show();
+			$("#btn_refund_tbl_li").show();
+			$("#btn_refund_fee_li").show();
 		};
 		$('#resRefundRate').text(refundRate);
 		
@@ -384,7 +387,8 @@
 		if($("#resRtnPrice").val() != 'undefined'){
 			$("#resRtnPrice_li").hide();
 			$("#resRtnPrice_recalc").hide();
-			$("#btn_refund_li").hide();
+			$("#btn_refund_tbl_li").hide();
+			$("#btn_refund_fee_li").hide();
 			$('[name="birthday"]').focus();
 			$('#refund').hide();
 			$('#refund2').hide();
@@ -392,10 +396,24 @@
 	}
 	
 	//해지환급금 조회
-	function getCancelData(){
+	function getCancelData(type){
 		readGridData('my', '1');						
-		$('#refund').show();
-		$('#refund2').show();
+		if(type == 'tbl'){
+			if($('#refund2').hasClass("on")){
+				$('#refund2').removeClass("on");
+				$('#refund2').hide();
+			}
+			$('#refund').addClass("on");
+			$('#refund').show();
+		}
+		else{
+			if($('#refund').hasClass("on")){
+				$('#refund').removeClass("on");
+				$('#refund').hide();
+			}
+			$('#refund2').addClass("on");
+			$('#refund2').show();
+		}
 	}
 	
 	//해지환급금 정보 가져오기
@@ -496,7 +514,9 @@
 				$("#month3, #month4, #month5, #month6").text(new Date().getMonth() + 1);
 			}			
 			
-			/*해지환급금 예시표*/		
+			/* 해지환급금 예시표 */
+			// json F키 데이터에서 뽑아온 내가 짠 코드(1)
+			/*
 			if(jsonPrsTblBody.F_cnctRcstList.length > 0){
 				//body 영역 초기화
 				$('#resRefundAmount0').empty();
@@ -509,38 +529,134 @@
 					
 					//최저보증이율 가정시
 					var bufRefundAmt0 ='';
-					bufRefundAmt0 += '<tr>'
+					bufRefundAmt0 += '<tr>';
 					bufRefundAmt0 += '	<th scope="row" style="text-align: center; padding: 10px; border: 1px solid #ddd;">'+row.cnctEltrMnth+'</th>';//기간
-					bufRefundAmt0 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.paymPrem+'</td>'//납입보험료
-					bufRefundAmt0 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainCnctRcst0+'</td>'//해지환급금
-					bufRefundAmt0 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainRfndRato0+'</td>'//환급률
-					bufRefundAmt0 += '</tr>'
+					bufRefundAmt0 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.paymPrem+'</td>';//납입보험료
+					bufRefundAmt0 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainCnctRcst0+'</td>';//해지환급금
+					bufRefundAmt0 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainRfndRato0+'</td>';//환급률
+					bufRefundAmt0 += '</tr>';
 					
 					$('#resRefundAmount0').append(bufRefundAmt0);
 					
 					//연복리A 2.5% 가정시
 					var bufRefundAmt1 ='';
-					bufRefundAmt1 += '<tr>'
+					bufRefundAmt1 += '<tr>';
 					bufRefundAmt1 += '	<th scope="row" style="text-align: center; padding: 10px; border: 1px solid #ddd;">'+row.cnctEltrMnth+'</th>';//기간
-					bufRefundAmt1 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.paymPrem+'</td>'//납입보험료
-					bufRefundAmt1 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainCnctRcst1+'</td>'//해지환급금
-					bufRefundAmt1 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainRfndRato1+'</td>'//환급률
-					bufRefundAmt1 += '</tr>'
+					bufRefundAmt1 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.paymPrem+'</td>';//납입보험료
+					bufRefundAmt1 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainCnctRcst1+'</td>';//해지환급금
+					bufRefundAmt1 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainRfndRato1+'</td>';//환급률
+					bufRefundAmt1 += '</tr>';
 					
 					$('#resRefundAmount1').append(bufRefundAmt1);
 
 					//연복리B 2.79% 가정시
 					var bufRefundAmt2 ='';
-					bufRefundAmt2 += '<tr>'
+					bufRefundAmt2 += '<tr>';
 					bufRefundAmt2 += '	<th scope="row" style="text-align: center; padding: 10px; border: 1px solid #ddd;">'+row.cnctEltrMnth+'</th>';//기간
-					bufRefundAmt2 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.paymPrem+'</td>'//납입보험료
-					bufRefundAmt2 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainCnctRcst2+'</td>'//해지환급금
-					bufRefundAmt2 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainRfndRato2+'</td>'//환급률
-					bufRefundAmt2 += '</tr>'
+					bufRefundAmt2 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.paymPrem+'</td>';//납입보험료
+					bufRefundAmt2 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainCnctRcst2+'</td>';//해지환급금
+					bufRefundAmt2 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainRfndRato2+'</td>';//환급률
+					bufRefundAmt2 += '</tr>';
 					
 					$('#resRefundAmount2').append(bufRefundAmt2);
 								
 				}
+			}
+			*/
+			
+			/* 해지환급금 예시표 테스트(data- attribute 이용, clone() 이용) */
+			//json F키 데이터에서 뽑아온 내가 짠 코드(2)
+			if(jsonPrsTblBody.F_cnctRcstList.length > 0){
+				
+				if($('#refund').hasClass("dsc-on") == false){
+					//thead title insert variables
+					var jsonTblTitle = jsonPrsTblBody.F_cnctRcstTitl[0];
+					var key = Object.keys(jsonTblTitle).sort();
+					
+					//tbody grid data append variables
+					var $0tr = $('#resRefundAmount0 tr:eq(0)');
+					var $1tr = $('#resRefundAmount1 tr:eq(0)');
+					var $2tr = $('#resRefundAmount2 tr:eq(0)');
+					var list_key = Object.keys(jsonPrsTblBody.F_cnctRcstList[0]);
+					
+					//thead title insert
+					for(var i=0; i < key.length ; i++){
+						$('[data-role-title="title'+i+'"]').text(jsonTblTitle[key[i]]);	
+					}
+					$('[data-role-title="test"]').text(jsonTblTitle.tit0);
+					
+					//tbody grid data append
+					for(var i=0; i<jsonPrsTblBody.F_cnctRcstList.length; i++){
+						
+						var row = jsonPrsTblBody.F_cnctRcstList[i];
+						
+						var am0clone = $0tr.clone();
+						var am1clone = $1tr.clone();
+						var am2clone = $2tr.clone();
+						
+						for(var j=0; j < list_key.length; j++){
+							var role = list_key[j];
+							for(var k in key){
+								switch(role){
+									case "cnctEltrMnth":
+										am0clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										am1clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										am2clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										break;
+									case "paymPrem":
+										am0clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										am1clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										am2clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										break;
+									case "mainCnctRcst0":
+										am0clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										break;
+									case "mainCnctRcst1":
+										am1clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										break;
+									case "mainCnctRcst2":
+										am2clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										break;
+									case "mainRfndRato0":
+										am0clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										break;
+									case "mainRfndRato1":
+										am1clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										break;
+									case "mainRfndRato2":
+										am2clone.children('[data-role="'+role+'"]')
+											.text(row[role]);
+										break;
+								}
+							}
+						}
+						
+						$('#resRefundAmount0').append(am0clone);
+						$('#resRefundAmount1').append(am1clone);
+						$('#resRefundAmount2').append(am2clone);
+
+						if(i == 0){
+							$0tr.remove();
+							$1tr.remove();
+							$2tr.remove();
+						}
+					}
+				}
+				else{
+					return;
+				}
+				$('#refund').addClass("dsc-on");
 			}
 			
 			if(jsonGuide != null){
@@ -747,10 +863,11 @@
 			</li>
 			<li>보험기간 : <label>10년<input type="radio" name="bogi"
 					id="bogi_N10" value="N10" checked/></label></li>
-			<li style="float:left; margin-right:10px"><input type="button" value="계산 결과" onclick="vali_form()"></li>
+			<li style="float: left; margin-right: 10px"><input type="button" value="계산 결과" onclick="vali_form()"></li>
 			<li id="resRtnPrice_recalc" style="display: none"><input type="button" value="다시 계산" onclick="recalc()"/></li>
 			<li id="resRtnPrice_li" style="display: none"><span id="resRtnPrice"></span>원</li>
-			<li id="btn_refund_li" style="display: none"><input type="button" value="해지환급금 조회" onclick="getCancelData()"/></li> 
+			<li style="float: left; margin-right: 10px; display: none" id="btn_refund_tbl_li"><input type="button" value="해지환급금 예시표 조회" onclick="getCancelData('tbl')"/></li> 
+			<li id="btn_refund_fee_li" style="display: none"><input type="button" value="해지환급금 수수료 조회" onclick="getCancelData('fee')"/></li> 
 		</ul>
 
 		<form id="mainForm" method="post">
@@ -797,6 +914,7 @@
 			%는 공시이율(저축) <span id="year4"></span>년 <span id="month4"></span>
 			월 현재 <span id="resStdMinYonRate5"></span>%를 적용합니다.
 		</p>
+		<br/>
 		<table style="border-collapse: collapse; border-top: 3px solid #168;">
 			<colgroup>
 				<col style="width:15%" />
@@ -807,7 +925,7 @@
 			<thead>
 				<tr>
 					<th scope="colgroup" colspan="4" 
-					style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">최저보증이율 가정 시</th>
+					style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;" data-role-title="title0"></th>
 				</tr>
 				<tr>
 					<th scope="col" style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">경과기간</th>
@@ -816,7 +934,13 @@
 					<th scope="col" style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">환급률</th>
 				</tr>
 			</thead>
-			<tbody id="resRefundAmount0" style="padding: 10px; border: 1px solid #ddd;">
+			<tbody id="resRefundAmount0">
+				<tr>
+					<th style="padding: 10px; border: 1px solid #ddd;" data-role="cnctEltrMnth"></th>
+					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="paymPrem"></td>
+					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="mainCnctRcst0"></td>
+					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="mainRfndRato0"></td>
+				</tr>
 			</tbody>
 		</table>
 		<br/>
@@ -830,7 +954,7 @@
 			<thead>
 				<tr>
 					<th scope="colgroup" colspan="4"
-					 style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">연복리A 2.5% 가정시</th>
+					 style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;" data-role-title="title1"></th>
 				</tr>
 				<tr>
 					<th scope="col" style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">경과기간</th>
@@ -839,7 +963,13 @@
 					<th scope="col" style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">환급률</th>
 				</tr>
 			</thead>
-			<tbody id="resRefundAmount1" style="padding: 10px; border: 1px solid #ddd;">
+			<tbody id="resRefundAmount1">
+				<tr>
+					<th style="padding: 10px; border: 1px solid #ddd;" data-role="cnctEltrMnth"></th>
+					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="paymPrem"></td>
+					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="mainCnctRcst1"></td>
+					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="mainRfndRato1"></td>
+				</tr>
 			</tbody>
 		</table>
 		<br/>
@@ -853,16 +983,22 @@
 			<thead>
 				<tr>
 					<th scope="colgroup" colspan="4"
-					 style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">연복리B 2.79% 가정시</th>
+					 style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;" data-role-title="title2"></th>
 				</tr>
 				<tr>
-					<th scope="col" style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">경과기간</th>
-					<th scope="col" style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">납입보험료</th>
-					<th scope="col" style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">해지환급금</th>
-					<th scope="col" style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">환급률</th>
+					<th style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">경과기간</th>
+					<th style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">납입보험료</th>
+					<th style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">해지환급금</th>
+					<th style="color: #168; background: #f0f6f9; padding: 10px; border: 1px solid #ddd;">환급률</th>
 				</tr>
 			</thead>
-			<tbody id="resRefundAmount2" style="padding: 10px; border: 1px solid #ddd;">
+			<tbody id="resRefundAmount2">
+				<tr>
+					<th style="padding: 10px; border: 1px solid #ddd;" data-role="cnctEltrMnth"></th>
+					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="paymPrem"></td>
+					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="mainCnctRcst2"></td>
+					<td style="padding: 10px; border: 1px solid #ddd; text-align: right" data-role="mainRfndRato2"></td>
+				</tr>
 			</tbody>
 		</table>
 		

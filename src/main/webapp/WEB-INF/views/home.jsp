@@ -6,7 +6,7 @@
 <head>
 	<title>Home</title>
 	
-	
+<script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>	
 </head>
 <body>
 <h1>
@@ -52,5 +52,15 @@
 		<td>a</td>
 	</tr>
 </table>
+
+<div id="data_attr_test"></div>
+<button type="button" id="btn">실행</button>
+<script>
+	$('#btn').on('click',function(){
+		$("#data_attr_test").text("성공");		
+		$("#data_attr_test").attr("data-test",'success');
+		$("#data_attr_test").text("성공2");		
+	});
+</script>
 </body>
 </html>

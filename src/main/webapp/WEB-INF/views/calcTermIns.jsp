@@ -7,7 +7,9 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
 <title>온슈어 정기보험 계산기</title>
-<script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.9.1.js"
+		integrity="sha256-e9gNBsAcA0DBuRWbm0oZfbiCyhjLrI6bmqAl5o+ZjUA="
+  		crossorigin="anonymous"></script>
 <script src="${pageContext.request.contextPath}/resources/js/common.js"></script>
 <script type="text/javascript">
 
@@ -19,7 +21,8 @@ $(document).ready(function(){
 	$('#payment_choice_title_li').hide();
 	
 	$('#birthday').keyup(function(){
-		if(parseInt($(this).val().length) < 3){
+		var birthday = $(this).val();
+		if(parseInt(birthday.length) < 3){
 			$('#insType_choice_detail').hide();
 			$('input:radio[name="insType"]:checked').prop('checked',false);
 			$('#insJoinM_choice_detail').hide();
@@ -32,7 +35,9 @@ $(document).ready(function(){
 			$('input:radio[name="payment"]:checked').prop('checked',false);
 			return false;
 		}
-		
+		if(parseInt(birthday.length) > 5){
+			termValidate(birthday);
+		}
 	});
 
 	//생년월일, 성별 선택했을 때
@@ -42,6 +47,89 @@ $(document).ready(function(){
 			
 		}
 	});
+	
+	//인기조건 설계하기
+	$('#pro_check01').click(function(){
+		if(validateBasic("alert") == false) {
+			return false;
+		} else {
+			if($(this).is(':checked')) {					
+				setFaveData();
+			}
+			else {				
+			    clearTermData();
+			}		
+		}
+	});
+	
+	//계산기 공통 validation
+	function validateBasic(mode) {		
+		if($('[name="birthday"]').val() == '') {
+			if(mode!="silent") {
+				alert('생년월일을 입력해 주세요.');
+				$('[name="birthday"]').focus();
+			}
+			return false;
+		}
+		if(/^\d{6}$/.test($('[name="birthday"]').val()) == false) {
+			if(mode!="silent") {
+				alert('생년월일은 YYMMDD의 6자리로 입력하여 주십시오.');
+				$('[name="birthday"]').focus();
+			}
+			return false;
+		}
+		if($('input:radio[name="gender02"]:checked').val() == undefined) {
+			if(mode!="silent") {
+				alert('성별을 입력해 주세요.');
+				$('input:radio[name="gender02"]').eq(0).focus();			
+			}
+			return false;
+		}
+	}
+
+	//계산기 validation
+	function validate(mode){ //확인필요
+		if(validateBasic(mode)==false ) {
+			return false;
+		}
+		
+		if($('#insType_txt').text() == '') {
+			if(mode!="silent") {
+				alert('보험종류를 선택해 주세요.');			
+				focusMenu('insType');
+			}
+			return false;
+		}
+		if($('#insJoinM_txt').text() == '') {
+			if(mode!="silent") {
+				alert('보험가입금액을 입력해 주세요.');			
+				focusMenu('insJoinM');
+			}
+			return false;
+		}
+		if($('#insJoinM_txt').text() == '직접입력') {
+			if(mode!="silent") {
+				alert('보험가입금액이 잘못 입력되었습니다. 1~20 사이에서 입력해주세요.');			
+				focusMenu('insJoinM');
+			}
+			return false;
+		}
+		if($('#bogi_txt').text() == '') {
+			if(mode!="silent") {
+				alert('보험기간을 선택해 주세요.');								
+				focusMenu('bogi');			
+			}
+			return false;
+		}
+		if($('#payment_txt').text() == '') {
+			if(mode!="silent") {
+				alert('납입기간을 입력해 주세요.');
+				focusMenu('payment');					
+			}
+			return false;
+		}
+		return true;
+	}
 	
 	//숫자만 입력
 	$('#birthday, #insJoinMTxt').keydown(function(e) {
@@ -107,6 +195,18 @@ $(document).ready(function(){
 	$('#mainForm>[name="healthYn"]').val("N");	
 	$('#mainForm>[name="sskey"]').val(''); //조건이 바뀌면 sskey 초기화		
 });
+
+//정기 관련 validate
+function termValidate(jumin){
+	
+	// 정기보험 가입나이 체크			
+	if(getManAge(jumin) < 19 || getInsAge(jumin) > 70) {
+		alert('만 19세 ~ 70세까지 가입할 수 있습니다');
+		$('#birthday').val('');				
+		return false;
+	}
+	
+}
 
 //계산항목 클릭 시
 function computeDetailOp(id){
@@ -176,60 +276,6 @@ function tabValChk(id){
 	}else{
 		return true;
 	}
-}
-
-
-//mainform value set
-function setMainFormData() {
-	//데이터를 정제하여 폼에 넣는다.
-	$('#mainForm>input[name="bjCode"]').val($('input:radio[name="insType"]:checked').val());
-	$('#mainForm>input[name="insSsn"]').val($('[name="birthday"]').val());
-	$('#mainForm>input[name="insSex"]').val($('input:radio[name="gender02"]:checked').val());
-	$('#mainForm>input[name="insAge"]').val(getInsAge($('[name="birthday"]').val()));
-	$('#mainForm>input[name="insManAge"]').val(getManAge($('[name="birthday"]').val()));
-	$('#mainForm>input[name="u0"]').val(getInsJoinM());
-	$('#mainForm>input[name="bogiCode"]').val($('input:radio[name="bogi"]:checked').val());
-	$('#mainForm>input[name="napgiCode"]').val($('input:radio[name="payment"]:checked').val());
-}	
-
-//계산서버 호출하여 가입설계서 정보를 조회한다. (확인필요)
-function readData() {
-	setMainFormData();
-	
-	//데이터 조회
-	$.ajax({
-		type: 'POST',
-		accepts: {
-			text: 'application/json'
-		},
-		url: '/m/contract/getTermInfo.do',
-		data: $('#mainForm').serialize(),
-		async: true,
-		dataType: 'json',
-		success: function(response) {
-			if(response.serverSideSuccessYn == 'Y') {
-				if (response.result.jsonData.errorCode == 'TERM3000LT') {
-					
-					no_result_none();
-					$("#mainPrem").val('');
-					
-				} else {
-					
-					no_result_block();
-					
-					//결과페이지 display				
-					display(response.result.jsonData);
-					//연금예시액 및 해지환급금 display
-					//displayPopup(response.result.jsonData, response.result.surDataMatrix);
-									
-					$("#mainPrem").val(response.result.jsonData.mainPrem);
-					$('#mainForm>[name="sskey"]').val(response.result.jsonData.new_sskey);
-					
-				}
-				
-			} 									
-		}
-	});
 }
 
 //보험종류 값설정
@@ -337,6 +383,7 @@ function focusMenu(id){
 
 //자녀연금 관련 li 세팅
 function computeTermChgLi(type){
+	console.log(type);
 	if(type=='show'){
 		$('#insType_choice_title_li').show();
 		$('#insJoinM_choice_title_li').show();		
@@ -352,6 +399,7 @@ function computeTermChgLi(type){
 
 //자녀연금 관련 class 세팅
 function computeTermChgClass(type){
+	console.log(type);
 	if(type=="add"){
 		$("#insType_choice_title").addClass("on");
 		$("#insJoinM_choice_title").addClass("on");		
@@ -367,6 +415,7 @@ function computeTermChgClass(type){
 
 //자녀연금 과련 항목리스트 세팅
 function computeTermChgDetail(type){
+	console.log(type);
 	if(type=="show"){
 		$('#insType_choice_detail').show();
 		$('#insJoinM_choice_detail').show();		
@@ -389,6 +438,61 @@ function confirmMenu(id){
 	
 	$('#btn_calculator').show();
 }
+
+//mainform value set
+function setMainFormData() {
+	//데이터를 정제하여 폼에 넣는다.
+	$('#mainForm>input[name="bjCode"]').val($('input:radio[name="insType"]:checked').val());
+	$('#mainForm>input[name="insSsn"]').val($('[name="birthday"]').val());
+	$('#mainForm>input[name="insSex"]').val($('input:radio[name="gender02"]:checked').val());
+	$('#mainForm>input[name="insAge"]').val(getInsAge($('[name="birthday"]').val()));
+	$('#mainForm>input[name="insManAge"]').val(getManAge($('[name="birthday"]').val()));
+	$('#mainForm>input[name="u0"]').val(getInsJoinM());
+	$('#mainForm>input[name="bogiCode"]').val($('input:radio[name="bogi"]:checked').val());
+	$('#mainForm>input[name="napgiCode"]').val($('input:radio[name="payment"]:checked').val());
+}	
+
+//계산서버 호출하여 가입설계서 정보를 조회한다. (확인필요)
+function readData() {
+	setMainFormData();
+	
+	//데이터 조회
+	$.ajax({
+		type: 'POST',
+		accepts: {
+			text: 'application/json'
+		},
+		url: '/m/contract/getTermInfo.do',
+		data: $('#mainForm').serialize(),
+		async: true,
+		dataType: 'json',
+		success: function(response) {
+			if(response.serverSideSuccessYn == 'Y') {
+				if (response.result.jsonData.errorCode == 'TERM3000LT') {
+					
+					no_result_none();
+					$("#mainPrem").val('');
+					
+				} else {
+					
+					no_result_block();
+					
+					//결과페이지 display				
+					display(response.result.jsonData);
+					//연금예시액 및 해지환급금 display
+					//displayPopup(response.result.jsonData, response.result.surDataMatrix);
+									
+					$("#mainPrem").val(response.result.jsonData.mainPrem);
+					$('#mainForm>[name="sskey"]').val(response.result.jsonData.new_sskey);
+					
+				}
+				
+			} 									
+		}
+	});
+}
+
+
 </script>
 </head>
 <body>
@@ -438,7 +542,7 @@ function confirmMenu(id){
 				</ul>
 			</div>
 		</li>
-		<li id="insJoinM_choice_title_li"><a href="javascript:computeDetailOp('insJoinM')" id="insJoinM_choice_title">보험가입금액<strong id="insJoinM_txt"></strong></a>
+		<li id="insJoinM_choice_title_li">보험가입금액 : <a href="javascript:computeDetailOp('insJoinM')" id="insJoinM_choice_title"><strong id="insJoinM_txt"></strong></a>
 			<div id="insJoinM_choice_detail">
 				<h3>사망시 남길 보험금은 얼마인가요?</h3>
 				<ul id="insJoinM_choice_detail_ul" style="list-style-type: none;list-style: none;">

@@ -33,9 +33,9 @@ public class HomeController {
 		
 		model.addAttribute("serverTime", formattedDate );
 		
+//		return "home";
 		return "calcTest";
 //		return "calcTermIns";
-//		return "home";
 	}
 	
 }
