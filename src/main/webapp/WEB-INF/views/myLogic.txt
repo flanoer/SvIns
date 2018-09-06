@@ -1,0 +1,173 @@
+/*
+//Java Script를 이용한 표를 만들기와 동시에 병합하기
+var tr, td;
+var temp;
+var rowspan = 1;
+var prev = [], curr = [];
+//기준이 되는 첫번째 칼럼 데이터 붙이기
+tr = document.createElement("tr");
+for(var h = 0 ; h < key.length ; h++){
+	//구분
+	if(h == 0){
+		td = document.createElement("th");
+		td.appendChild(document.createTextNode(guideFee[0][key[h]]));
+		td.setAttribute("scope","row");
+		td.style = "padding: 10px; border: 1px solid #ddd;";
+		prev[h] = td;
+		tr.appendChild(td);
+	}
+	//그 외 상세내용
+	else{
+		td = document.createElement("td");
+		td.appendChild(document.createTextNode(guideFee[0][key[h]]));
+		td.setAttribute("scope","row");
+		td.style = "padding: 10px; border: 1px solid #ddd;";
+		prev[h] = td;
+		tr.appendChild(td);
+	}
+}
+$('#guide_fee').append(tr);
+
+//부장님과 다솜씨가 주신 힌트로 다시 짠 코드
+for(var i = 1; i < guideFee.length ; i++){
+	tr = document.createElement("tr");
+	curr = [];
+	for(var j = 0; j < key.length ; j++){
+		//칼럼이 구분일 때
+		if(j == 0){
+			td = document.createElement("th");
+			td.innerHTML = guideFee[i][key[j]];
+			td.setAttribute("scope","row");
+			td.style = "padding: 10px; border: 1px solid #ddd;";
+			curr[j] = td;
+			//구분의 내용이 같을 경우 (필요할 경우 다른 칼럼에 쓰면 그대로 적용될 것)
+			if(curr[j].innerHTML == prev[j].innerHTML){
+				rowspan++;
+				prev[j].setAttribute("rowspan",rowspan);
+				curr[j] = prev[j];
+			}
+			//구분의 내용이 다를 경우
+			else{
+				prev[j] = curr[j];
+				tr.appendChild(prev[j]);
+			}
+		}
+		//칼럼이 구분이 아닌 상세 내용일 때
+		else{
+			td = document.createElement("td");
+			td.innerHTML = guideFee[i][key[j]].replace("\n","<br/>");
+			td.setAttribute("scope","row");
+			td.style = "padding: 10px; border: 1px solid #ddd;";
+			curr[j] = td;
+			tr.appendChild(curr[j]);
+		}
+		$('#guide_fee').append(tr);
+	}
+} 
+ */
+/*
+//내가 짰던 코드					
+for(var i = 0; i < guideFee.length ; i++){
+	curr = [];
+	for(var h = 0; h < key.length ; h++){
+		curr[h] = guideFee[i][key[h]];
+		console.log(curr[h]);
+		if(i > 0 && h == 0 && a[0][h] == curr[h]){
+			rowspan++;
+			curr[h] = '';
+			a[0]['rowspan'] = rowspan;
+			a[0]['temp'] = h;
+		}
+	}
+	a[i] = curr;
+}
+console.log(a);
+for(var i = 0; i < a.length ; i++){
+	tr = document.createElement("tr");
+	for(var j = 0; j < a[i].length ; j++){
+		console.log("i : "+i+", j : "+j);
+		if(a[i][j] != '' && a[i]['temp'] != null && a[i]['rowspan'] != null){
+			if(j == 0){
+				td = document.createElement("th");
+				td.appendChild(document.createTextNode(a[i][j]));
+				td.setAttribute("rowspan",a[i]['rowspan']);
+				td.setAttribute("scope","row");
+				td.style = "padding: 10px; border: 1px solid #ddd;";
+				tr.appendChild(td);
+			}
+			else{
+				td = document.createElement("td");
+				td.appendChild(document.createTextNode(a[i][j]));
+				td.style = "padding: 10px; border: 1px solid #ddd;";
+				tr.appendChild(td);
+			}
+		}
+		if(a[i][j] != '' && a[i]['temp'] == undefined){
+			if(j == 0){
+				td = document.createElement("th");
+				td.appendChild(document.createTextNode(a[i][j]));
+				td.setAttribute("scope","row");
+				td.style = "padding: 10px; border: 1px solid #ddd;";
+				tr.appendChild(td);
+			}
+			else{
+				td = document.createElement("td");
+				td.appendChild(document.createTextNode(a[i][j]));
+				td.style = "padding: 10px; border: 1px solid #ddd;";
+				tr.appendChild(td);
+			}
+		}
+	}
+	document.getElementById("guide_fee").appendChild(tr);
+}
+*/
+
+/* 해지환급금 예시표 */
+// json F키 데이터에서 뽑아온 내가 짠 코드(1)
+/*
+if(jsonPrsTblBody.F_cnctRcstList.length > 0){
+	//body 영역 초기화
+	$('#resRefundAmount0').empty();
+	$('#resRefundAmount1').empty();
+	$('#resRefundAmount2').empty();
+	
+	for(var i=0; i<jsonPrsTblBody.F_cnctRcstList.length; i++){
+	
+		var row = jsonPrsTblBody.F_cnctRcstList[i];
+		
+		//최저보증이율 가정시
+		var bufRefundAmt0 ='';
+		bufRefundAmt0 += '<tr>';
+		bufRefundAmt0 += '	<th scope="row" style="text-align: center; padding: 10px; border: 1px solid #ddd;">'+row.cnctEltrMnth+'</th>';//기간
+		bufRefundAmt0 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.paymPrem+'</td>';//납입보험료
+		bufRefundAmt0 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainCnctRcst0+'</td>';//해지환급금
+		bufRefundAmt0 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainRfndRato0+'</td>';//환급률
+		bufRefundAmt0 += '</tr>';
+		
+		$('#resRefundAmount0').append(bufRefundAmt0);
+		
+		//연복리A 2.5% 가정시
+		var bufRefundAmt1 ='';
+		bufRefundAmt1 += '<tr>';
+		bufRefundAmt1 += '	<th scope="row" style="text-align: center; padding: 10px; border: 1px solid #ddd;">'+row.cnctEltrMnth+'</th>';//기간
+		bufRefundAmt1 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.paymPrem+'</td>';//납입보험료
+		bufRefundAmt1 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainCnctRcst1+'</td>';//해지환급금
+		bufRefundAmt1 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainRfndRato1+'</td>';//환급률
+		bufRefundAmt1 += '</tr>';
+		
+		$('#resRefundAmount1').append(bufRefundAmt1);
+
+		//연복리B 2.79% 가정시
+		var bufRefundAmt2 ='';
+		bufRefundAmt2 += '<tr>';
+		bufRefundAmt2 += '	<th scope="row" style="text-align: center; padding: 10px; border: 1px solid #ddd;">'+row.cnctEltrMnth+'</th>';//기간
+		bufRefundAmt2 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.paymPrem+'</td>';//납입보험료
+		bufRefundAmt2 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainCnctRcst2+'</td>';//해지환급금
+		bufRefundAmt2 += '	<td style="text-align: right; padding: 10px; border: 1px solid #ddd;">'+row.mainRfndRato2+'</td>';//환급률
+		bufRefundAmt2 += '</tr>';
+		
+		$('#resRefundAmount2').append(bufRefundAmt2);
+					
+	}
+}
+*/

@@ -1,198 +1,255 @@
-function maxLengthCheck(obj){
-	if(obj.value.length > obj.maxLength){
-		obj.value = obj.value.slice(0,obj.maxLength);
+//main form value set
+function setMainFormData(id, healthYn) {
+	$('#mainForm>input[name="insSsn"]').val($('[name="birthday"]').val());
+	$('#mainForm>input[name="insSex"]').val(
+			$('input:radio[name="gender02"]:checked').val());
+	$('#mainForm>input[name="insAge"]').val(
+			getInsAge($('[name="birthday"]').val()));
+	$('#mainForm>input[name="insManAge"]').val(
+			getManAge($('[name="birthday"]').val()));
+	$('#mainForm>input[name="napgiCode"]').val(
+			$('input:radio[name="payment"]:checked').val());
+	$('#mainForm>input[name="bogiCode"]').val(
+			$('input:radio[name="bogi"]:checked').val());
+	if(id == 'tab-save'){//저축보험
+		$('#mainForm>input[name="bjCode"]').val('ck1');
+		$('#mainForm>input[name="u0"]').val(getMonthBill());
+		$('#mainForm>input[name="napgi"]').val(getNapgi());
+		$('#mainForm>input[name="bogi"]').val(getBogi());
+		$('#mainForm>input[name="healthYn"]').val(healthYn);
+	}
+	else{//정기보험
+		//공통으로 뽑을 수 있음. : insSsn, insSex, insAge, insManAge, napgiCode, bogiCode
+		$('#mainForm>input[name="bjCode"]').val($('input:radio[name="insType"]:checked').val());
+		$('#mainForm>input[name="u0"]').val(getInsJoinM());
+		$('#mainForm>input[name="healthYn"]').val(healthYn);
 	}
 };
 
-/**
- * 보험 나이 계산
- * @param oJumin
- * @returns
- */
-function getInsAge(oJumin)
-{
-	var yBirth;
-	if (oJumin.substring(0,1)==0 || oJumin.substring(0,1)==1 )
-	{
-		yBirth = parseFloat(oJumin.substr(0,2)) + 2000;  // 생년월일
-	}
-	else
-	{
-		yBirth = parseFloat(oJumin.substr(0,2)) + 1900;  // 생년월일
-	}
-	var mBirth = parseFloat(oJumin.substr(2,2));
-	var dBirth = parseFloat(oJumin.substr(4,2));
-	
-	var today = (typeof testStanDardDate == "undefined") ? '' : testStanDardDate;
-	var yToday = '';
-	var mToday = '';
-	var dToday = '';
-	
-	if (today == '' || today.length < 8) {
-		var curDate = new Date();        // 오늘
-		yToday = curDate.getFullYear();	//getFullYear()는 ie, 파폭, 크롬에서 같은값 호출
-		mToday = curDate.getMonth() + 1;
-		dToday = curDate.getDate();		
-		
-	} else {
-		yToday = parseInt(today.substring(0, 4), 10);
-		mToday = parseInt(today.substring(4, 6), 10);
-		dToday = parseInt(today.substring(6,8), 10);
-	}
-
-	var yDiff = yToday - yBirth;
-	var mDiff = mToday - mBirth - (dToday < dBirth? 1: 0);
-
-	if(mDiff < 0) mDiff += 12, --yDiff;
-	if(yDiff < 0) return true;
-	
-	if(mDiff == 5 && dToday < dBirth && dToday == lastDay(yToday,mToday)) ++mDiff;
-	
-	oInsAge = yDiff + (6 <= mDiff? 1: 0);	
-	return oInsAge;
-};
-
-/**
- * 만 나이 계산
- * @param oJumin
- * @returns
- */
-function getManAge(oJumin)
-{
-	var yBirth;
-	if (oJumin.substring(0,1)==0 || oJumin.substring(0,1)==1 )
-	{
-		yBirth = parseFloat(oJumin.substr(0,2)) + 2000;  // 생년월일
-	}
-	else
-	{
-		yBirth = parseFloat(oJumin.substr(0,2)) + 1900;  // 생년월일
-	}
-	var mBirth = parseFloat(oJumin.substr(2,2));
-	var dBirth = parseFloat(oJumin.substr(4,2));
-	
-	var today = (typeof testStanDardDate == "undefined") ? '' : testStanDardDate;
-	var yToday = '';
-	var mToday = '';
-	var dToday = '';	
-	
-	if (today == '' || today.length < 8) {
-		var curDate = new Date();        // 오늘
-		yToday = curDate.getFullYear();	//getFullYear()는 ie, 파폭, 크롬에서 같은값 호출
-		mToday = curDate.getMonth() + 1;
-		dToday = curDate.getDate();		
-		
-	} else {
-		yToday = parseInt(today.substring(0, 4), 10);
-		mToday = parseInt(today.substring(4, 6), 10);
-		dToday = parseInt(today.substring(6,8), 10);
-	}	
-	var yDiff = yToday - yBirth;
-	var mDiff = mToday - mBirth - (dToday < dBirth? 1: 0);
-
-	if(mDiff < 0) mDiff += 12, --yDiff;
-	if(yDiff < 0) return true;
-	
-	oManAge = yDiff;
-	return oManAge;
-};
-
-//저축 관련 validate
-function savingsValidate(jumin){
-	if(getManAge(jumin) < 19 || getInsAge(jumin) > 69) {
-		alert('만 19세 ~ 69세까지 가입할 수 있습니다');
-		$('[name="birthday"]').val('');
+// -- validation function start
+function valCommonInfo() {
+	if ($('[name="birthday"]').val() == '') {
+		alert('생년월일을 입력해 주세요.');
 		$('[name="birthday"]').focus();
 		return false;
 	}
-};
-
-// 정기보험 가입나이 체크			
-function termValidate(jumin){
-	if(getManAge(jumin) < 19 || getInsAge(jumin) > 70) {
-		alert('만 19세 ~ 70세까지 가입할 수 있습니다');
-		$('[name="birthday"]').val('');		
+	if (/^\d{6}$/.test($('[name="birthday"]').val()) == false) {
+		alert('생년월일은 YYMMDD의 6자리로 입력하여 주십시오.');
 		$('[name="birthday"]').focus();
 		return false;
 	}
-}
-
-function replaceNumType(str){
-	
-	var returnVal = 0;
-	
-	var regex = /[^0-9]/g;
-	returnVal = str.replace(regex,"");
-	
-	if(str.indexOf("*")>-1) {
-		return str;
-	} else {
-		return Number(returnVal);
+	if(birthChecking($('[name="birthday"]').val()) == false){
+		alert('생년월일을 올바르게 입력하여 주십시오.');
+		$('[name="birthday"]').focus();
+		return false;
+	}
+	if($('input:radio[name="gender02"]:checked').val() == undefined){
+		alert('성별을 선택해 주세요.');
+		$('input:radio[name="gender02"]').eq(0).focus();
+		return false
+	}
+	else {
+		return true;
 	}
 };
 
-function commaNum(number) {	
-	number = String(number);
-	var len = number.length;
-	var point = len % 3;
-	var str = number.substring(0, point);
-	while(point < len) {
-		if(str != '') { str += ','; }
-		str += number.substring(point, point + 3);
-		point += 3;
+function insValidate(jumin, flag){
+	if(flag == 'tab-save'){//저축보험
+		if(getManAge(jumin) < 19 || getInsAge(jumin) > 69) {
+			alert('만 19세 ~ 69세까지 가입할 수 있습니다');
+			$('[name="birthday"]').val('');
+			$('[name="birthday"]').focus();
+			return false;
+		}
+		else return true;
 	}
-	return str;
+	else{//정기보험
+		if(getManAge(jumin) < 19 || getInsAge(jumin) > 70) {
+			alert('만 19세 ~ 70세까지 가입할 수 있습니다');
+			$('[name="birthday"]').val('');		
+			$('[name="birthday"]').focus();
+			return false;
+		}
+		else return true;
+	}
 };
 
-function lastDay(year, month){
-	switch(month){
-		case 2:  return year % 4 == 0? 29: 28;
-		case 4:
-		case 6:
-		case 9:
-		case 11: return 30;
-		default: return 31;
+function validate(id){
+	if(id == 'tab-save'){
+		if(valCommonInfo() == true && valiSave() == true){
+			return true;
+		}
+		else return false;
+	}
+	else{
+		if(valCommonInfo() == true && valiTerm() == true){
+			return true;
+		}
+		else return false;
 	}
 }
+// -- validation function end
 
-/*
- * 정확한 생년월일 판별
- */
-function birthChecking(jumin) {
-	var month = Number(jumin.substr(2,2));
-	var day= Number(jumin.substr(4,2));
+// -- mode function start
+function getCancelData(mode){
+	if(mode == 'exmtbl2'){
+		select_health('normal');
+	}
+	layer_popup('#refund_'+mode);
+};
 
-	if(month > 12 || day > 31) {
-		return false;
+function select_health(mode){
+	//일반, 건강고객 예시표 모두 숨기기
+	$('#refund_exmtbl2 a').removeClass("selected").addClass("deselect");
+	$('#refund_exmtbl2 table').hide();
+	
+	//일반, 건강 mode에 따라 테이블 표시
+	$('#'+mode+'_table').show();
+	$('.'+mode).removeClass("deselect").addClass("selected");
+};
+// -- mode function end
+
+// -- button function start
+//계산하기 버튼 눌렀을 때(저축보험, 정기보험 분기하여 데이터 가져옴.)
+function fn_calc(){
+	//선택된 보험으로 계산하고자 하는 데이터를 form에 삽입
+	var id = $('.calc_this').attr("id");
+	//세션에 탭id값으로 .cal로 접근가능한 객체를 json stringify하여 저장함.
+	//var storageData = $('.cal').serializeFormJSON();
+	//sessionStorage.setItem(id, storageData);
+	
+	if(validate(id)){
+		if(id == 'tab-save'){
+			setMainFormData(id,'Y');
+			fn_submit(id);
+		}
+		else{
+			setMainFormData(id,'N');
+			fn_submit(id);
+		}
 	}
-	if(month < 0 || month > 12) {
+};
+
+//다시계산 버튼 클릭시 작동, 생년월일까지 초기화 시키고 싶었으나 작동 안됨.
+function fn_reset(){
+	$('#minResult').hide();
+	$('.calc_this :input').each(function(){
+		$(this).find('[type="text"]').empty();
+		if($(this).attr("type") == 'number'){
+			$(this).val('');
+			$(this).parent().hide();
+		}
+		$(this).prop("checked",false);
+		clearSpanData($(this).attr("name"));
+	});
+	$('#reCalTxt :input').each(function(){
+		$(this).val('');
+	});
+};
+// -- button function end
+
+function ajaxCalSetup(id, goUrl, params){
+	$.ajax({
+		url : goUrl,
+		accepts : {
+			text : 'application/json'
+		},
+		type : 'post',
+		data : params,
+		dataType : 'json',
+		success : function callbackFn(response){
+			if (response.serverSideSuccessYn == 'Y') {
+				if(goUrl.indexOf("Result") != -1){
+					//결과페이지 display				
+					display(response.result.jsonData, id);
+					$('#mainForm>[name="sskey"]').val(
+							response.result.jsonData.new_sskey);
+				}
+				else{
+					//해지환급금
+					if(id == 'tab-save'){
+						displayTerminateData(response.result.jsonData, id);
+					}
+					else displayTerminateData(response.result, id);
+				}
+			}
+		},
+		error : function(xhr, status, error) {
+			console.log("에러 : " + error + "상태 : " + status);
+		}
+	});	
+};
+
+// -- layer function start
+//레이어팝업 가운데정렬(가로-세로)
+jQuery.fn.center = function () {
+	this.css("position","absolute");
+	this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) +
+	$(window).scrollTop()) + "px");
+	this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) +
+	$(window).scrollLeft()) + "px");
+	return this;
+};
+
+//레이어팝업 on/off 용 함수
+function layer_popup(el){
+	var $el = $(el);        //레이어의 id를 $el 변수에 저장
+	$el.center();
+	
+	$('#mask').css({
+			"width":$(window).width(),
+			"height":$(document).height()
+	});
+	$('#mask').addClass("cnntSel").fadeTo("slow",0.8);
+	
+    $el.find('a.btn-layerClose').click(function(){
+		$el.fadeOut('fast'); // 닫기 버튼을 클릭하면 레이어가 닫힌다.
+		$('#mask').hide();		
+		$el.scrollTop(0);
 		return false;
+    });
+	$el.show();
+};
+// -- layer function end
+
+//sessionStorage에 json스트링 타입으로 저장하기 위한 함수
+$.fn.serializeFormJSON = function () {
+  var o = {};
+  var a = this.serializeArray();
+  $.each(a, function () {
+      if (o[this.name]) {
+          if (!o[this.name].push) {
+              o[this.name] = [o[this.name]];
+          }
+          o[this.name].push(this.value || '');
+      } else {
+          o[this.name] = this.value || '';
+      }
+  });
+  return JSON.stringify(o);
+};
+
+var toggle = true;
+
+function computeDetailOp(mode){
+	if($('.'+mode).hasClass(mode) && toggle){
+		menuChoice(mode);
 	}
-	switch(month) {
-		case 1:
-		case 3:
-		case 5:
-		case 7:
-		case 8:
-		case 10:
-		case 12:
-			if(day >31) {
-				return false;
-			}
-			break;
-		case 4:
-		case 6:
-		case 9:
-		case 11:
-			if(day >30) {
-				return false;
-			}
-			break;
-		case 2 : 
-			if(day>29) {
-				return false;
-			}
-			break;
-	}		
-	return true;			
+	else{
+		confirmChoice(mode);
+	}
+};
+
+function menuChoice(mode){
+	$('#'+mode+'_li').show();
+	toggle = false;
 }
+
+function confirmChoice(mode){
+	$('#'+mode+'_li').hide();
+	toggle = true;
+};
+
+function clearSpanData(mode){
+	$('#'+mode).text('');
+};
